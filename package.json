@@ -1,0 +1,11 @@
+{
+  "name": "what3words",
+  "version": "1.0.0",
+  "description": "Grabs three random words from Worknik and then uses What3Words to get a geo-location. Tweets those three words from the provided geo-location.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Amatranga",
+  "license": "ISC"
+}
