@@ -1,6 +1,6 @@
 const Twitter = require('twitter');
 const Swagger = require('swagger-client')
-// const config = require('./config') || null;
+// const config = require('./config');
 
 const WORDNIK_API_KEY = process.env.WordnikAPI;
 const what3wordsAPI = process.env.What3Words;
