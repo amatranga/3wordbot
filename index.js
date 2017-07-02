@@ -20,8 +20,11 @@ const wordRequest = {
   method: 'GET'
 };
 
+//Takes an array of words and turns them into a string. Each word will be separated by the specified separator
+//Optionally, 'min' will slice the specified number of characters from the end of the string.
 const separateWords = (arrOfWords, separator, min) => {
   let _out = '';
+  if (min === undefined) { min = 0; }
   arrOfWords.forEach((word) => _out += word + separator);
   return _out.slice(0, _out.length - min);
 };
@@ -35,16 +38,22 @@ let mediaId;
 let status;
 let tweet;
 
+//First, get three random words. The words will come from Wordnik's API
 Swagger.http(wordRequest)
 .then((res) => {
   res.body.forEach(wordObj => words.push(wordObj.word.toLowerCase()));
 })
+
+//Once the three random words are returned, they are passed to What3Words' API
 .then(() => {
   geoRequest = {
     url: `https://api.what3words.com/v2/forward?addr=${separateWords(words, '.', 1)}&key=${what3wordsAPI}`,
     method: 'GET'
   };
 })
+
+//If What3Words provides a valid response, a geometry object will be found on the response.body.
+//Not every combination of 3 words will result in a geo-location. 
 .then(() => {
   Swagger.http(geoRequest)
   .then((response) => {
@@ -53,6 +62,9 @@ Swagger.http(wordRequest)
   .then(() => {
     isValidLocation = geometry !== undefined
   })
+
+  //If the location is valid, the latitude and longitude will be sent to Google's Static Maps API.
+  //The resulting buffer will then be stored
   .then(() => {
     if (isValidLocation) {
       map = {
@@ -64,9 +76,13 @@ Swagger.http(wordRequest)
         map = resp.text;
         mapSize = resp.headers['content-length'];
       })
+
+      //Format the 3 words in preparation for tweeting
       .then(() => {
         tweet = '#' + separateWords(words, ' | #', 3);
       })
+      
+      //Before the map sent back from Google Static Maps can be uploaded, Twitter has to format it
       .then(() => {
         bot.post('media/upload', {media: map}, (err, media, res) => {
           if (!err) {
@@ -78,6 +94,8 @@ Swagger.http(wordRequest)
               display_coordinates: true,
               media_ids: mediaId
             };
+      
+            //The formatted map and tweet are then tweeted
             bot.post('statuses/update', status, (err, tweet, res) => {
               if (!err) {
                 console.log('TWEETED', status);
@@ -88,15 +106,21 @@ Swagger.http(wordRequest)
           }
         });
       })
+      
+      //An error at this point means that there was a problem with Google Static Maps API
       .catch((err) => {
         console.log(err, 'Error with map');
       });
     }
   })
+  
+  //An error at this point means that there was a problem with the geo-location request
   .catch((err) => {
     console.log(err, 'Error in geoRequest');
   });
 })
+
+//Finally, any other errors will be handled here
 .catch((err) => {
   console.log('ERROR', err);
 });
