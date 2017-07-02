@@ -1,0 +1,10 @@
+staticMapsKey=YOUR_API_KEY,
+
+consumer_key=YOUR_API_KEY,
+consumer_secret=YOUR_API_KEY,
+access_token_key=YOUR_API_KEY,
+access_token_secret=YOUR_API_KEY,
+
+What3Words=YOUR_API_KEY,
+
+WordnikAPI=YOUR_API_KEY,
