@@ -6,7 +6,14 @@ const WORDNIK_API_KEY = config.WordnikAPI;
 const what3wordsAPI = config.What3Words;
 const staticMapsAPI = config.staticMapsKey;
 
-const bot = new Twitter(config);
+const twitterKeys = {
+  consumer_key: config.consumer_key,
+  consumer_secret: config.consumer_secret,
+  access_token_key: config.access_token_key,
+  access_token_secret: config.access_token_secret
+}
+
+const bot = new Twitter(twitterKeys);
 
 const wordRequest = {
   url: `http://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=true&includePartOfSpeech=noun&adjective&verb&adverb&excludePartOfSpeech=proper-noun&minCorpusCount=1000000&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=4&maxLength=-1&limit=3&api_key=${WORDNIK_API_KEY}`,
@@ -24,7 +31,9 @@ let geoRequest;
 let geometry;
 let isValidLocation;
 let map;
-let mapSize;
+let mediaId;
+let status;
+let tweet;
 
 Swagger.http(wordRequest)
 .then((res) => {
@@ -42,24 +51,44 @@ Swagger.http(wordRequest)
     geometry = response.body.geometry;
   })
   .then(() => {
-    console.log(geometry, 'GEOMETRY');
     isValidLocation = geometry !== undefined
   })
   .then(() => {
     if (isValidLocation) {
       map = {
-        url: `https://maps.googleapis.com/maps/api/staticmap?center=${geometry.lng}, ${geometry.lat}&zoom=14&size=600x600&maptype=satellite&key=${staticMapsAPI}`,
+        url: `https://maps.googleapis.com/maps/api/staticmap?center=${geometry.lat},${geometry.lng}&zoom=5&size=600x600&markers=color:red%7C${geometry.lat},${geometry.lng}&key=${staticMapsAPI}`,
         method: 'GET'
       }
+      console.log(map.url);
       Swagger.http(map)
       .then((resp) => {
         map = resp.text;
         mapSize = resp.headers['content-length'];
       })
       .then(() => {
-        console.log(map, 'MAP');
-        console.log(mapSize, 'MAPSIZE');
-        console.log(separateWords(words, ' | ', 2));
+        tweet = separateWords(words, ' | ', 2);
+      })
+      .then(() => {
+        bot.post('media/upload', {media: map}, (err, media, res) => {
+          console.log(tweet, 'TWEET TWEET')
+          if (!err) {
+            mediaId = media.media_id_string;
+            status = {
+              status: tweet,
+              lat: geometry.lat,
+              lon: geometry.lng,
+              display_coordinates: true,
+              media_ids: mediaId
+            };
+            bot.post('statuses/update', status, (err, tweet, res) => {
+              if (!err) {
+                console.log('TWEETED', status);
+              } else {
+                console.log(err, 'Error tweeting')
+              }
+            });
+          }
+        });
       })
       .catch((err) => {
         console.log(err, 'Error with map');
