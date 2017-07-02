@@ -4,6 +4,7 @@ const config = require('./config');
 
 const WORDNIK_API_KEY = config.WordnikAPI;
 const what3wordsAPI = config.What3Words;
+const staticMapsAPI = config.staticMapsKey;
 
 const bot = new Twitter(config);
 
@@ -12,25 +13,26 @@ const wordRequest = {
   method: 'GET'
 };
 
+const separateWords = (arrOfWords, separator, min) => {
+  let _out = '';
+  arrOfWords.forEach((word) => _out += word + separator);
+  return _out.slice(0, _out.length - min);
+};
+
 let words = [];
 let geoRequest;
 let geometry;
 let isValidLocation;
-
-const dotSeparatedWords = (arrOfWords, _out) => {
-  _out = '';
-  arrOfWords.forEach((word) => _out += word + '.');
-  return _out.slice(0, _out.length - 1);
-};
+let map;
+let mapSize;
 
 Swagger.http(wordRequest)
 .then((res) => {
   res.body.forEach(wordObj => words.push(wordObj.word.toLowerCase()));
-  console.log(words);
 })
 .then(() => {
   geoRequest = {
-    url: `https://api.what3words.com/v2/forward?addr=${dotSeparatedWords(words)}&key=${what3wordsAPI}`,
+    url: `https://api.what3words.com/v2/forward?addr=${separateWords(words, '.', 1)}&key=${what3wordsAPI}`,
     method: 'GET'
   };
 })
@@ -40,14 +42,28 @@ Swagger.http(wordRequest)
     geometry = response.body.geometry;
   })
   .then(() => {
-    console.log('================');
     console.log(geometry, 'GEOMETRY');
-    console.log('================');
     isValidLocation = geometry !== undefined
   })
   .then(() => {
     if (isValidLocation) {
-      console.log('Time to hit up the Google Maps API with the geometry');
+      map = {
+        url: `https://maps.googleapis.com/maps/api/staticmap?center=${geometry.lng}, ${geometry.lat}&zoom=14&size=600x600&maptype=satellite&key=${staticMapsAPI}`,
+        method: 'GET'
+      }
+      Swagger.http(map)
+      .then((resp) => {
+        map = resp.text;
+        mapSize = resp.headers['content-length'];
+      })
+      .then(() => {
+        console.log(map, 'MAP');
+        console.log(mapSize, 'MAPSIZE');
+        console.log(separateWords(words, ' | ', 2));
+      })
+      .catch((err) => {
+        console.log(err, 'Error with map');
+      });
     }
   })
   .catch((err) => {
