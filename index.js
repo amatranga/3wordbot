@@ -1,16 +1,16 @@
 const Twitter = require('twitter');
 const Swagger = require('swagger-client')
-const config = require('./config');
+// const config = require('./config');
 
-const WORDNIK_API_KEY = config.WordnikAPI;
-const what3wordsAPI = config.What3Words;
-const staticMapsAPI = config.staticMapsKey;
+const WORDNIK_API_KEY = WordnikAPI;
+const what3wordsAPI = What3Words;
+const staticMapsAPI = staticMapsKey;
 
 const twitterKeys = {
-  consumer_key: config.consumer_key,
-  consumer_secret: config.consumer_secret,
-  access_token_key: config.access_token_key,
-  access_token_secret: config.access_token_secret
+  consumer_key: consumer_key,
+  consumer_secret: consumer_secret,
+  access_token_key: access_token_key,
+  access_token_secret: access_token_secret
 }
 
 const bot = new Twitter(twitterKeys);
