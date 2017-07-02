@@ -12,6 +12,6 @@
   "dependencies": {
     "nodemon": "^1.11.0",
     "swagger-client": "^3.0.16",
-    "twitter": "^1.7.1",
+    "twitter": "^1.7.1"
   }
 }
