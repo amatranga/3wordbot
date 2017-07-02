@@ -59,18 +59,16 @@ Swagger.http(wordRequest)
         url: `https://maps.googleapis.com/maps/api/staticmap?center=${geometry.lat},${geometry.lng}&zoom=5&size=600x600&markers=color:red%7C${geometry.lat},${geometry.lng}&key=${staticMapsAPI}`,
         method: 'GET'
       }
-      console.log(map.url);
       Swagger.http(map)
       .then((resp) => {
         map = resp.text;
         mapSize = resp.headers['content-length'];
       })
       .then(() => {
-        tweet = separateWords(words, ' | ', 2);
+        tweet = '#' + separateWords(words, ' | #', 3);
       })
       .then(() => {
         bot.post('media/upload', {media: map}, (err, media, res) => {
-          console.log(tweet, 'TWEET TWEET')
           if (!err) {
             mediaId = media.media_id_string;
             status = {
