@@ -107,7 +107,7 @@ Swagger.http(wordRequest)
             //First, we need to get the status id
               bot.get('statuses/user_timeline', { screen_name: '3wordBot', count: 1 }, (err, tweet, res) => {
                 if (!err) {
-                  console.log(res.body, 'RESBODY');
+                  console.log(res.body[0].id, 'RESBODY');
                 }
               })
             });
