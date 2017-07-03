@@ -107,7 +107,7 @@ Swagger.http(wordRequest)
             //First, we need to get the status id
               bot.get('statuses/user_timeline', { screen_name: '3wordBot', count: 1 }, (err, tweet, res) => {
                 if (!err) {
-                  statusId = (JSON.parse(res.body))[0].id;
+                  statusId = (JSON.parse(res.body))[0].id_str;
                   bot.post('statuses/update', { status: '@3wordBot This tweet was automatically created', in_reply_to_status_id: statusId}, (err, tweet, res) => {
                     if (!err) {
                       console.log('REPLIED!');
