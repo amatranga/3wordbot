@@ -103,15 +103,14 @@ Swagger.http(wordRequest)
               } else {
                 console.log(err, 'Error tweeting')
               }
-            });
-
             //Let's try out replying to ourselves. For now, we will just say that this post was automatically created
             //First, we need to get the status id
-            bot.get('statuses/user_timeline', { screen_name: '3wordBot', count: 1 }, (err, tweet, res) => {
-              if (!err) {
-                console.log(res, 'RES');
-              }
-            })
+              bot.get('statuses/user_timeline', { screen_name: '3wordBot', count: 1 }, (err, tweet, res) => {
+                if (!err) {
+                  console.log(res, 'RES');
+                }
+              })
+            });
           }
         });
       })
