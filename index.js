@@ -79,7 +79,7 @@ Swagger.http(wordRequest)
 
       //Format the 3 words in preparation for tweeting
       .then(() => {
-        tweet = '#' + separateWords(words, ' | ', 2);
+        tweet = separateWords(words, ' | ', 2);
       })
       
       //Before the map sent back from Google Static Maps can be uploaded, Twitter has to format it
