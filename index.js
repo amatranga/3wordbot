@@ -37,6 +37,7 @@ let map;
 let mediaId;
 let status;
 let tweet;
+let statusId;
 
 //First, get three random words. The words will come from Wordnik's API
 Swagger.http(wordRequest)
@@ -103,6 +104,14 @@ Swagger.http(wordRequest)
                 console.log(err, 'Error tweeting')
               }
             });
+
+            //Let's try out replying to ourselves. For now, we will just say that this post was automatically created
+            //First, we need to get the status id
+            bot.get('statuses/user_timeline', { screen_name: '3wordBot', count: 1 }, (err, tweet, res) => {
+              if (!err) {
+                console.log(res, 'RES');
+              }
+            })
           }
         });
       })
